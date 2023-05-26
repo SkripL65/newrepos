@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<!-- Подключаем Bootstrap для стилистики.Взял старую версию с давнего личного проекта -->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+	<title>Веб-чат</title>
+   
+	<!-- Свои стили -->
+	<style>
+		body {
+			background: #4a4a4a;
+		}
+	</style>
+</head>
+<body>
+	<!-- Создаем рыбную шапку -->
+	<div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-black border-bottom shadow-sm">
+		<h5 class="my-0 mr-md-auto"; style="color:white" >Iliyuyshchenkov Oleg TI201</h5>
+		<nav class="my-2 my-md-0 mr-md-3">
+			<a class="p-2 text-white" href="#">Главная</a>
+			<a class="p-2 text-white" href="#">Про нас</a>
+			<a class="p-2 text-white"" href="#">Поддержка</a>
+            <style>.bg-black {
+                background-color: #000000!important;
+            }</style>
+		
+		</nav>
+	</div>
+	<!-- MainPage -->
+	<div class="container">
+        <div class="py-5">
+            <h2 style="color:white;">Веб-чат</h2>
+            <h2 style="color:white;">Начни общаться скорее!</h2>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <!-- Поля для получение имени и сообщения -->
+                <h3 style="color:white;">Начало чата</h3>
+                <form id="messForm">
+                    <div class="form-group">
+                        <label for="name" style="color:white;">Имя</label>
+                        <input type="text" name="name" id="name" placeholder="Введите имя" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="message" style="color:white;">Сообщение</label>
+                        <textarea name="message" id="message" class="form-control" placeholder="Введите сообщение"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Отправить" class="btn btn-danger">
+                        <style>
+                            .btn-danger {
+                                background-color: rgb(7, 137, 207);
+                                border-color: aqua;
+                                color: white;
+                            }
+                        </style>
+                    </div>
+                </form>
+            </div>
+            <div class="col-6">
+                <h3 style="color:white;">Чат</h3>
+                <!-- Вывод всех сообщений -->
+                <div id="all_mess"></div>
+            </div>
+        </div>
+    </div>
+    
+	<!-- Подключаем jQuery, а также Socket.io -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+		const min = 1;
+		const max = 6;
+		const random = Math.floor(Math.random() * (max - min)) + min;
+
+		
+		// Берем классы  из Bootstrap стилей (самые стандартные)
+		var alertClass;
+		switch (random) {
+			case 1:
+				alertClass = 'secondary';
+				break;
+			case 2:
+				alertClass = 'danger';
+				break;
+			case 3:
+				alertClass = 'success';
+				break;
+			case 4:
+				alertClass = 'warning';
+				break;
+			case 5:
+				alertClass = 'info';
+				break;
+			case 6:
+				alertClass = 'light';
+				break;
+		}
+
+		// Функция для работы с данными на сайте
+		$(function() {
+			// Включаем socket.io и отслеживаем все подключения
+			const socket = io.connect();
+			// Делаем переменные на:
+			const $form = $("#messForm"); // Форму сообщений
+			const $name = $("#name"); // Поле с именем
+			const $textarea = $("#message"); // Поле текста
+			const $all_messages = $("#all_mess"); // Блок с сообщениями
+
+			
+			$form.submit(function(event) {
+				// Предотвращаем классическое поведение формы
+				event.preventDefault();
+				
+				socket.emit('send mess', {mess: $textarea.val(), name: $name.val(), className: alertClass});
+				// Очищаем поле с сообщением
+				$textarea.val('');
+			});
+
+			
+			socket.on('add mess', function(data) {
+         $all_messages.append("<div class='alert alert-" + data.className + "'><b>" + data.name + "</b>: " + data.mess + "</div>");
+});
+		}); 
+	</script>
+</body>
+</html>
